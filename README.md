@@ -28,7 +28,7 @@ For abundance calculations, reads were mapped back to taxonomically binned conti
 <li><a href="https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST">BLAST</a></li> 
 <li><a href="https://ftp.ncbi.nlm.nih.gov/blast/db">BLAST Databases</a></li> 
 <li><a href="https://github.com/husonlab/megan-ce">Megan CE</a></li>
-<li><a href=https://digitalinsights.qiagen.com/products-overview/discovery-insights-portfolio/analysis-and-visualization/qiagen-clc-genomics-workbench/)https://digitalinsights.qiagen.com/products-overview/discovery-insights-portfolio/analysis-and-visualization/qiagen-clc-genomics-workbench">CLC Genomics Workbench</a></li>
+<li><a href=https://digitalinsights.qiagen.com/products-overview/discovery-insights-portfolio/analysis-and-visualization/qiagen-clc-genomics-workbench">CLC Genomics Workbench</a></li>
 <li><a href="https://www.geneious.com/download/">Geneious Prime</a></li>
   
 </ul>
