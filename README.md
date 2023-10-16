@@ -1,4 +1,4 @@
-<h6> **Introduction**
+<h1 class="entry-title" itemprop="headline"> **Introduction** </h1>
 
 MegaVir is a bioinformatic pipeline for virome characterization and genome assembly.
 
