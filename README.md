@@ -20,3 +20,8 @@ The pipeline then branches into three paths based on the nature of the analysis 
 For abundance calculations, reads were mapped back to taxonomically binned contigs using MEGAN6, and BBMap was chosen for its speed, multithreading capability, and sensitivity. Initially, abundance was recorded as absolute counts, then the reads per contig were normalized.
 
 <h1 class="entry-title" itemprop="headline"> Dependencies </h1>
+
+<ul dir="auto">
+<li><a href="https://github.com/voutcn/megahit">Megahit</a></li>
+<li><a href="https://github.com/bbuchfink/diamond">DIAMOND</a></li>
+</ul>
