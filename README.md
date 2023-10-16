@@ -2,7 +2,7 @@
 
 MegaVir is a bioinformatic pipeline for virome characterization and genome assembly.
 
-![image](https://github.com/balazshorvathreal/MegaVir/assets/82114449/bb492788-b4b6-4a6a-91d8-fc6565dfc97d)
+![image](https://github.com/balazshorvathreal/MegaVir/assets/82114449/7d4fc76b-539a-4158-b5ae-08dd2a7fe54c)
 
 
 <h1 class="entry-title" itemprop="headline"> Workflow </h1>
