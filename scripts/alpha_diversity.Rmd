@@ -1,0 +1,158 @@
+---
+title: "alpha_diversity"
+author: "alex tomazatos"
+date: "2023-06-16"
+output: html_document
+---
+
+```{r}
+pacman::p_load("dplyr","tidyr","ggplot2")
+pmv_fam <- read.csv("pmv_relative_abundance_family.csv") %>%
+  select(-c(group,i26.NC,i27.09,i27.NC,i60.NC,i61.NC,i65.08,i66.08))
+```
+
+
+```{r}
+#extract fx and xt, pivot longer, add kit and dataset
+fuo_fam_fx <- pmv_fam %>%
+  select(taxa, starts_with("i26")) %>%
+  pivot_longer(col = starts_with("i"),
+               names_to = "sample",
+               values_to = "count") %>%
+  mutate(dataset = "FUO",
+         kit = "QIAseq FX")
+fuo_fam_xt <- pmv_fam %>%
+  select(taxa, starts_with("i27")) %>%
+  pivot_longer(col = starts_with("i"),
+               names_to = "sample",
+               values_to = "count") %>%
+  mutate(dataset = "FUO",
+         kit = "Nextera XT")
+###
+covid_fam_fx <- pmv_fam %>%
+  select(taxa, starts_with("i60")) %>%
+  pivot_longer(col = starts_with("i"),
+               names_to = "sample",
+               values_to = "count") %>%
+  mutate(dataset = "COVID-19",
+         kit = "QIAseq FX")
+
+covid_fam_xt <- pmv_fam %>%
+  select(taxa, starts_with("i61")) %>%
+  pivot_longer(col = starts_with("i"),
+               names_to = "sample",
+               values_to = "count") %>%
+  mutate(dataset = "COVID-19",
+         kit = "Nextera XT")
+###
+mpx_fam_fx <- pmv_fam %>%
+  select(taxa, starts_with("i56")) %>%
+  pivot_longer(col = starts_with("i"),
+               names_to = "sample",
+               values_to = "count") %>%
+  mutate(dataset = "Monkeypox",
+         kit = "QIAseq FX")
+
+mpx_fam_xt <- pmv_fam %>%
+  select(taxa, starts_with("i57")) %>%
+  pivot_longer(col = starts_with("i"),
+               names_to = "sample",
+               values_to = "count") %>%
+  mutate(dataset = "Monkeypox",
+         kit = "Nextera XT")
+###
+wnv_fam_fx <- pmv_fam %>%
+  select(taxa, starts_with("i66")) %>%
+  pivot_longer(col = starts_with("i"),
+               names_to = "sample",
+               values_to = "count") %>%
+  mutate(dataset = "WNV",
+         kit = "QIAseq FX")
+
+wnv_fam_xt <- pmv_fam %>%
+  select(taxa, starts_with("i65")) %>%
+  pivot_longer(col = starts_with("i"),
+               names_to = "sample",
+               values_to = "count") %>%
+  mutate(dataset = "WNV",
+         kit = "Nextera XT")
+
+fam_fx <- rbind(fuo_fam_fx, covid_fam_fx, mpx_fam_fx, wnv_fam_fx)
+fam_xt <- rbind(fuo_fam_xt, covid_fam_xt, mpx_fam_xt, wnv_fam_xt)
+fam_long <- rbind(fam_fx, fam_xt)
+```
+
+
+```{r}
+richness <- function(x){
+  r <- sum(x > 0)
+  return(r)
+}
+
+shannon <- function(x){
+  rabund <- x[x>0]/sum(x)
+  -sum(rabund * log(rabund))
+}
+
+simpson <- function(x){
+  n <- sum(x)
+  sum(x * (x-1) / (n * (n-1)))
+}
+```
+
+
+```{r}
+fam_long$count[fam_long$count != 0] <- 1
+
+wnv_subset <- subset(fam_long, dataset=="WNV")
+
+fam_long %>%
+  group_by(sample, dataset,kit) %>%
+  filter(count != 0) %>%
+  summarise(richness = richness(count)) %>%
+  ggplot(aes(x = kit, y = richness, color = kit)) +
+  geom_point() +
+  geom_boxplot() +
+  ylim(0,11) +
+  scale_y_continuous(breaks = seq(0,11, by = 1)) +
+  scale_fill_manual(values = c("red", "#2CA3EB"))+
+  facet_wrap(~dataset, nrow = 1) +
+  theme_minimal()
+
+fam_long %>%
+  group_by(sample, dataset,kit) %>%
+  filter(count != 0) %>%
+  summarise(shannon = shannon(count)) %>%
+  ggplot(aes(x = kit, y = shannon, color = kit)) +
+  geom_point() +
+  geom_boxplot() +
+  ylim(0,11) +
+  scale_y_continuous(breaks = seq(0,3, by = 1)) +
+  scale_fill_manual(values = c("red", "#2CA3EB"))+
+  facet_wrap(~dataset, nrow = 1) +
+  theme_minimal()
+
+fam_long %>%
+  group_by(sample, dataset,kit) %>%
+  filter(count != 0) %>%
+  summarise(simpson = simpson(count)) %>%
+  ggplot(aes(x = kit, y = simpson, color = kit)) +
+  geom_point() +
+  geom_boxplot() +
+  ylim(0,11) +
+  scale_y_continuous(breaks = seq(0,3, by = 1)) +
+  scale_fill_manual(values = c("red", "#2CA3EB"))+
+  facet_wrap(~dataset, nrow = 1) +
+  theme_minimal()
+
+# xlab = NULL
+# colors
+# legend.title = library kit
+# facet name/dataset = bottom
+# WNV = WNV in reservoir /n and vectors
+```
+
+```{r}
+
+```
+

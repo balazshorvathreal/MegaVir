@@ -1,0 +1,183 @@
+---
+title: "PMV_relative_abundance"
+author: "alex tomazatos"
+date: "2023-04-24"
+output: html_document
+---
+
+```{r}
+pacman::p_load("dplyr","tidyr","ComplexHeatmap","circlize","RColorBrewer" )
+pmv_virus <- read.csv("pmv_relative_abundance_v2.csv") %>%
+  select(- c(i26.NC,i27.NC,i60.NC,i61.NC,i65.08,i66.08)) %>% #remove NC columns
+    select_if(function(x) { ifelse(is.character(x), T, sum(x)>0)}) 
+
+read_lib <- read.csv("reads_lib.csv")
+read_lib$sample <- gsub("-", ".", read_lib$sample)
+#calculate RPM
+pmv_virus_long <- pmv_virus %>%
+  pivot_longer(col = starts_with("i"),
+               names_to = "sample",
+               values_to = "abs_count")
+pmv_virus_lib <- merge(pmv_virus_long, read_lib, by.x = "sample")
+pmv_virus_lib$abs_count <- pmv_virus_lib$abs_count/(pmv_virus_lib$nr_reads/10^6)
+names(pmv_virus_lib)[names(pmv_virus_lib) == "abs_count"] <- "RPM"
+
+pmv_virus_wide <- pmv_virus_lib %>%
+  select(taxa, group, sample, RPM) %>%
+  pivot_wider(names_from = "sample",
+              values_from = "RPM")
+# use original taxa order as target for reordering taxa in new table
+pmv_target <- pmv_virus$taxa
+pmv_virus_wide2 <- pmv_virus_wide %>%
+  arrange(factor(taxa, levels = pmv_target))
+pmv_virus_wide2[pmv_virus_wide2 < 1] <- 0
+```
+
+
+```{r}
+fuo_fx <- as.data.frame(pmv_virus_wide2[, c(3:13)])
+fuo_xt <- as.data.frame(pmv_virus_wide2[, c(14:25)])
+
+mpx_fx <- as.data.frame(pmv_virus_wide2[, c(26:32)])
+mpx_xt <- as.data.frame(pmv_virus_wide2[, c(33:39)])
+
+sars_fx <- as.data.frame(pmv_virus_wide2[, c(40:54)])
+sars_xt <- as.data.frame(pmv_virus_wide2[, c(55:69)])
+
+wnv_xt <- as.data.frame(pmv_virus_wide2[, c(70:75)])
+wnv_fx <- as.data.frame(pmv_virus_wide2[, c(76:81)])
+```
+
+Bind fuo, sars, mpx, wnv
+```{r}
+#rename colnames
+names(fuo_fx) <- gsub("i26", "fuo", colnames(fuo_fx))
+names(fuo_xt) <- gsub("i27", "fuo", colnames(fuo_xt))
+names(sars_fx) <- gsub("i60", "sars", colnames(sars_fx))
+names(sars_xt) <- gsub("i61", "sars", colnames(sars_xt))
+names(mpx_fx) <- gsub("i56", "mpx", colnames(mpx_fx))
+names(mpx_xt) <- gsub("i57", "mpx", colnames(mpx_xt))
+names(wnv_fx) <- gsub("i66", "wnv", colnames(wnv_fx))
+names(wnv_xt) <- gsub("i65", "wnv", colnames(wnv_xt))
+
+pmv_fx <- cbind(pmv_virus_wide2[,c(1,2)],fuo_fx, sars_fx, wnv_fx, mpx_fx)
+pmv_fx[pmv_fx == 0] <- NA
+pmv_xt <- cbind(pmv_virus_wide2[,c(1,2)],fuo_xt, sars_xt, wnv_xt, mpx_xt)
+pmv_xt[pmv_xt == 0] <- NA
+```
+join fx and xt
+```{r}
+library("rqdatatable")
+#join dfs for a general view
+pmv_metagen <- natural_join(pmv_fx, pmv_xt,
+                            by = c("taxa", "group"),
+                            jointype = "FULL") %>%
+  relocate(fuo.09, .after = fuo.08) %>%
+  relocate(mpx.01, mpx.02, mpx.03, mpx.04, mpx.05, mpx.06, mpx.07, .after = wnv.07)
+#reorder row order to original
+pmv_metagen2 <- pmv_metagen[order(match(pmv_metagen$taxa, pmv_virus_wide2$taxa)), ]
+pmv_metagen2[is.na(pmv_metagen2)] <- 0
+# remove Apis mellifera associated microvirus 22
+pmv_metagen2 <- pmv_metagen2[row.names(pmv_metagen2) != "4", ,drop = F] #!!!4 is row name!!!
+
+# write.csv(pmv_metagen2, "pmv_virus_rpm.csv", row.names = F)
+```
+as matrix
+```{r}
+pmv_mat <- as.matrix(pmv_metagen2[3:42], "numeric")
+rownames(pmv_mat) <- pmv_metagen2[,1]
+pmv_mat2 <- replace(pmv_mat, pmv_mat == 0,1)
+pmv_mat3 <- log10(pmv_mat2)
+# add protocol metadata
+pmv_metadata <- read.csv("pmv_metadata.csv", header = T)
+pmv_metadata2 <- as.data.frame(t(pmv_metadata), header = F)
+colnames(pmv_metadata2) <- pmv_metadata2[1,]
+pmv_metadata3 <- pmv_metadata2[-1,]
+## select metadata columns based on those of pmv_metagen2
+cols_pmv <- colnames(pmv_metagen2[,c(3:42)])
+selected_cols_pmv <- pmv_metadata3 %>%
+  select(all_of(cols_pmv))
+pmv_metadata4 <- as.data.frame(t(selected_cols_pmv))
+
+```
+Colors and annotations
+```{r}
+# colors
+pmv_group <- unique(pmv_metagen2$group) #for row
+group_color <- brewer.pal(length(pmv_group), "Pastel2")
+
+## for cols
+pmv_sample <- sort(unique(pmv_metadata4$type))
+pmv_sample_color <- brewer.pal(length(pmv_sample), "Set1")
+
+pmv_protocol <- unique(pmv_metadata4$protocol) 
+protocol_color <- brewer.pal(length(pmv_protocol), "Pastel1")
+
+pmv_rpm_color <- colorRampPalette(c("#EFF5F9","#044671", "red"), space="rgb")(128) #for rpm
+# annotations
+pmv_row_anno <- rowAnnotation(
+  group = anno_simple(pmv_metagen2$group, col = setNames(group_color, pmv_group), width = unit(0.5, "cm")), gap = unit(1, "mm"),
+  show_annotation_name = F)
+
+pmv_col_anno <- columnAnnotation(
+  protocol = anno_simple(pmv_metadata4$protocol, col = setNames(protocol_color, pmv_protocol), width = unit(1, "cm")),
+  sample_type = anno_simple(pmv_metadata4$type, col = setNames(pmv_sample_color, pmv_sample), width = unit(1, "cm")), gap = unit(1, "mm"),
+  show_annotation_name = F)
+```
+
+
+```{r}
+# heatmap
+pmv_hm <- Heatmap(pmv_mat3,
+                  heatmap_legend_param = list(at = c(0,2,4,6),
+                                              title = "log10(RPM)",
+                                              legend_width = unit(2.6, "cm"),
+                                              legend_height = unit(6, "mm"),
+                                              labels_gp = gpar(fontsize = 18),
+                                              title_gp = gpar(fontsize = 20, fontface = "bold"),
+                                              direction = "horizontal"),
+                  rect_gp = gpar(col = "white", lwd = 0.5),
+                  cluster_columns = F,
+                  show_column_names = F,
+                  row_order = 1:nrow(pmv_mat3),
+                  row_split = factor(pmv_metagen2$group, 
+                                     levels = c("DNA virus", "RNA virus")),
+                  row_gap = unit(1, "mm"),
+                  column_split = factor(pmv_metadata4$protocol, 
+                                        levels = c("metatranscriptomic", "metagenomic")),
+                  column_gap = unit(1, "mm"),
+                  col = pmv_rpm_color,
+                  left_annotation = pmv_row_anno,
+                  top_annotation = pmv_col_anno,
+                  row_names_side = "left",
+                  row_names_gp = gpar(fontsize = 18),
+                  row_names_max_width = max_text_width(rownames(pmv_mat3),
+                                                       gp = gpar(fontsize = 18)),
+                  row_title = NULL,
+                  column_title = NULL)
+
+pmv_lgd <- packLegend(Legend(labels = pmv_group, 
+                             title = "Group", 
+                             title_gp = gpar(fontsize = 20, fontface = "bold"), 
+                             legend_gp = gpar(fill = group_color), 
+                             labels_gp = gpar(fontsize = 18)),
+                      Legend(labels = pmv_sample, 
+                             title = "Sample", 
+                             title_gp = gpar(fontsize = 20, fontface = "bold"), 
+                             legend_gp = gpar(fill = pmv_sample_color), 
+                             labels_gp = gpar(fontsize = 18)), 
+                      Legend(labels = pmv_protocol, 
+                             title = "Sequencing mode", 
+                             title_gp = gpar(fontsize = 20, fontface = "bold"), 
+                             legend_gp = gpar(fill = protocol_color), 
+                             labels_gp = gpar(fontsize = 18)),
+                      direction = "horizontal")
+
+draw(pmv_hm,
+     annotation_legend_list = pmv_lgd,
+     annotation_legend_side = "bottom",
+     align_annotation_legend = "heatmap_center",
+     legend_grouping = "original")
+dev.off
+```
+
