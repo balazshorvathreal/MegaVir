@@ -1,6 +1,6 @@
 import glob
 
-# Databases and mapping files
+# Fasta and diamond files
 FASTAINFOLDER = '/home/ngs_lab/MegaVir/fasta/'
 DAAFOLDER = '/home/ngs_lab/MegaVir/daa/'
 
