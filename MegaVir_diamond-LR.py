@@ -5,7 +5,7 @@ MEGAHITOUT = '/home/ngs_lab/MegaVir/denovo/'
 DAAFOLDER = '/home/ngs_lab/MegaVir/daa/'
 
 # Get all fasta files
-FASTAFILES = [file.replace('fastq.fa', '').replace(MEGAHITOUT, '') for file in glob.glob(MEGAHITOUT + '*fastq.fa')]
+FASTAFILES = [file.replace('fa', '').replace(MEGAHITOUT, '') for file in glob.glob(MEGAHITOUT + '*.fa')]
 
 # Snakemake rules
 rule all:
@@ -14,7 +14,7 @@ rule all:
 
 rule align:
     input:
-        fasta=MEGAHITOUT + '{sample}fastq.fa',
+        fasta=MEGAHITOUT + '{sample}.fa',
     output:
         DAAFOLDER + '{sample}.daa'
     shell:
