@@ -1,0 +1,23 @@
+# Parse file names
+## Specify .fastq file suffix, following the read pair designation
+# suffix: .fastq.gz
+suffix: _001.fastq.gz
+
+# Read pair designations
+r1_suf: R1
+r2_suf: R2
+
+# Change to location of all raw .fastq (or .fastq.gz) files
+raw_data: /home/ngs_lab/MegaVir/raw
+
+# Change to output directory
+scratch: /home/ngs_lab/MegaVir/trimmed
+
+# Add a project name, output files will be placed in a directory of this name in scratch
+proj_name: Test1
+
+# Change to output directory to eventually move all trimmed reads to
+outputDIR: /home/ngs_lab/MegaVir/trimmed
+
+# Location of illumina adapters, full path
+adapters: /home/ngs_lab/MegaVir/adapters/adapters-all.fa
