@@ -19,4 +19,4 @@ rule denovo:
     output:
         directory(DENOVO + '{sample}')
     shell:
-        MEGAHIT + 'megahit -r {input.fastq} -o {output} -t 16 --min-contig-len 400'
+        MEGAHIT + 'megahit -r {input.fastq} -o {output} -t 16 --min-contig-len 200'
