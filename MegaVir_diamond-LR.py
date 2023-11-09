@@ -18,4 +18,4 @@ rule align:
     output:
         DAAFOLDER + '{sample}daa'
     shell:
-        '/home/ngs_lab/diamond/diamond blastx -q {input.fasta} -d /home/ngs_lab/diamond/nr_virus.dmnd -o {output} -p 16 --long-reads -f 100 -b6 -c4'
+        '/home/ngs_lab/diamond/diamond blastx -q {input.fasta} -d /home/ngs_lab/diamond/nr_virus.dmnd -o {output} -p 16 --long-reads -f 100 -b20 -c1'
