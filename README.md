@@ -24,6 +24,7 @@ For abundance calculations, reads were mapped back to taxonomically binned conti
 <li><a href="https://github.com/s-andrews/FastQC">FastQC </a></li>
 <li><a href="https://multiqc.info/">MultiQC</a></li> 
 <li><a href="https://sourceforge.net/projects/bbmap">BBMap</a></li>
+<li><a href="https://anaconda.org/bioconda/trimmomatic">Trimmomatic (conda install -c bioconda trimmomatic)</a></li>  
 <li><a href="https://github.com/hzi-bifo/RiboDetector">Ribodetector</a></li>
 <li><a href="https://github.com/voutcn/megahit">Megahit</a></li>
 <li><a href="https://github.com/bbuchfink/diamond">DIAMOND</a></li>
