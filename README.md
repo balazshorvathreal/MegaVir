@@ -1,3 +1,4 @@
+<img width="1064" height="343" alt="MegaVir_logo_final" src="https://github.com/user-attachments/assets/c52083a1-fd55-4a63-b26a-a37a80b93bfc" />
 <h1 class="entry-title" itemprop="headline"> Introduction </h1>
 
 MegaVir is a bioinformatic pipeline for virome characterization and genome assembly.
