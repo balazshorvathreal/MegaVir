@@ -32,5 +32,5 @@ For abundance calculations, reads were mapped back to taxonomically binned conti
 <li><a href="https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST">BLAST</a></li> 
 <li><a href="https://ftp.ncbi.nlm.nih.gov/blast/db">BLAST Databases</a></li> 
 <li><a href="https://github.com/husonlab/megan-ce">Megan CE</a></li>
-<li><a href="https://github.com/linsalrob/primer-trimming">PRINSEQ Primer Trimming<</a></li>
+<li><a href="https://github.com/linsalrob/primer-trimming">PRINSEQ Primer Trimming</a></li>
 </ul>
